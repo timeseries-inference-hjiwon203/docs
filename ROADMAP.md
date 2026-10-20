@@ -33,6 +33,15 @@ flowchart LR
 
 > 2~5는 합성 데이터로 바로 시작할 수 있다. 1번 수집기가 실데이터를 3주 이상 모으는 동안 2~5를 병행한다.
 
+## 정한 것
+
+- 개인 과제로 진행한다. Jetson aip-1을 계정을 나눠 같이 쓴다.
+- 저장소: aip-1에 InfluxDB 2.x 설치. 서버 1개, 계정·org·버킷은 사람마다
+- MQTT 브로커: `data.withio.net:1883` (아이디·비밀번호, aip-1에서 접속 확인)
+- 수집기: Telegraf
+- 언어: 과제 2부터 Python (배우면서 진행)
+- Jetson 설치 프로그램은 노션 설치 기록표에 이유와 함께 남긴다
+
 ## 단계마다 반복하는 순서 (spec-kit)
 
 1. `/speckit-specify` — 과제 안내문의 "해결할 것·확인 기준"을 `spec.md`로 옮긴다.
@@ -42,11 +51,9 @@ flowchart LR
 5. `/speckit-implement` — 할 일을 하나씩 하고 체크한다.
 6. 산출물과 해석을 남기고 위 표의 상태를 갱신한다.
 
-## 지금 막혀 있는 것
+## 아직 정하지 않은 것 / 확인할 것
 
-- [ ] InfluxDB(`data.withio.net:8086`) 접속: 집/개인 네트워크에서 시간 초과. 교육장 네트워크·VPN에서만 열리는지 확인 필요
-- [ ] InfluxDB 버전(1.x / 2.x / 3.x)과 org·bucket 이름 확인
-- [ ] MQTT 브로커 주소·포트·토픽 구조 확인 (README 참고)
+- [ ] MQTT 토픽 구조와 메시지 형식
 - [ ] 제공 키트 README / CODE_GUIDE 읽기
 - [ ] 트랙 결정: 기본(A) / 심화(B)
-- [ ] Jetson 팀원 계정 만들기, IDE(IntelliJ) 원격 연동
+- [ ] 코드를 GitHub에서 Jetson으로 배포하는 방법
