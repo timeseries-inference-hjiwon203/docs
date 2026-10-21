@@ -14,54 +14,38 @@ description: "과제 1 데이터 수집 체계 할 일 목록"
 
 ## Phase 1: Setup (준비)
 
-- [ ] T001 README / CODE_GUIDE를 읽고 MQTT 브로커 주소·포트·토픽 구조·메시지 예시를 `spec.md` FR-001에 채운다
-- [ ] T002 교육장 네트워크에서 `curl -i http://data.withio.net:8086/ping`으로 InfluxDB 접속과 버전을 확인한다
-- [ ] T003 InfluxDB의 org·bucket 이름을 확인해 `spec.md` FR-008에 채운다
-- [ ] T004 [P] Jetson에 가상환경을 만들고 `paho-mqtt`, `influxdb-client`, `PyYAML`, `pandas`를 설치한다
-- [ ] T005 [P] `.env.example`과 `.gitignore`(`.env` 제외)를 만든다
+- [x] T001 aip-1에서 운영진 InfluxDB(`10.116.64.13:8086`) 접속·조회 확인
+- [x] T002 운영진 DB의 공간·장치·항목 목록 확인, 가져올 데이터 확정 (spec FR-002)
+- [ ] T003 aip-1에 InfluxDB 2.x 설치, `curl -i http://localhost:8086/ping`이 `204`인지 확인
+- [ ] T004 org 1개, 버킷 `jiwon`·`seohyun`, 사람마다 자기 버킷 전용 토큰을 만든다
+- [ ] T005 [P] 설치한 프로그램을 노션 설치 기록표에 적는다
 
-## Phase 2: Foundational (기초)
+## Phase 2: User Story 1 - 골라서 옮기기 (P1) 🎯 MVP
 
-- [ ] T006 `mosquitto_sub`(또는 짧은 파이썬)로 토픽을 구독해 실제 메시지 10개를 `specs/001-data-collection/samples.txt`에 저장한다
-- [ ] T007 InfluxDB에 테스트 값 1개를 쓰고 웹 UI/쿼리로 다시 읽어 본다
+- [ ] T006 [US1] 옮기는 방법을 정한다 (InfluxDB task / Python 스크립트)
+- [ ] T007 [US1] 필터(공간·항목 목록)를 설정으로 둔 옮기기 프로그램을 만든다
+- [ ] T008 [US1] 10분 실행 후 내 버킷 건수가 운영진 DB 같은 기간 건수와 같은지 확인
 
-**Checkpoint**: 메시지를 눈으로 봤고, 저장소에 쓰고 읽을 수 있다
+**Checkpoint**: 데이터가 내 버킷에 쌓인다
 
-## Phase 3: User Story 1 - 받아서 저장 (P1) 🎯 MVP
+## Phase 3: User Story 2 - 자동 복구 (P1)
 
-- [ ] T008 [US1] `config/collector.yaml`에 브로커·토픽→공간·필드→항목 매핑을 적는다
-- [ ] T009 [US1] `collector/mapping.py`: 메시지 1개를 (공간, 항목, 값, 센서 시각, 수신 시각)으로 바꾼다
-- [ ] T010 [P] [US1] `tests/test_mapping.py`: `samples.txt`의 메시지로 매핑이 맞는지 테스트한다
-- [ ] T011 [US1] `collector/collector.py`: 구독 → 매핑 → InfluxDB 쓰기. 형식이 틀린 메시지는 로그만 남기고 건너뛴다
-- [ ] T012 [US1] 10분 실행 후 4공간 × 3항목 값이 쌓였는지 확인한다
+- [ ] T009 [US2] 옮기기 프로그램을 서비스로 등록해 부팅 시 자동 시작되게 한다 (방법 미정)
+- [ ] T010 [US2] 시험 1: 네트워크를 끊었다 다시 연결 → 재개되고 빠진 구간이 채워지는지 기록
+- [ ] T011 [US2] 시험 2: 보드 재부팅 → 자동 재개되는지 기록
 
-**Checkpoint**: 손으로 실행하면 데이터가 쌓인다
+## Phase 4: User Story 3 - 수집 현황 (P2)
 
-## Phase 4: User Story 2 - 자동 복구 (P1)
+- [ ] T012 [US3] 장치별 건수, 마지막 수신 시각, 24시간 커버율(자기 간격 기준), 결측 구간을 보는 방법을 정하고 만든다
+- [ ] T013 [US3] 24시간 수집 후 현황 표를 `report.md`에 붙이고, 빠진 구간의 원인과 안내문·실제 데이터 차이를 적는다
 
-- [ ] T013 [US2] 브로커 끊김 시 자동 재접속(`reconnect_delay_set`)과 InfluxDB 쓰기 실패 시 재시도를 넣는다
-- [ ] T014 [US2] `deploy/collector.service`를 만들어 systemd에 등록한다(`Restart=always`, 부팅 시 시작)
-- [ ] T015 [US2] 시험 1: 수집 중 네트워크/브로커를 끊었다 다시 연결 → 1분 안에 재개되는지 기록
-- [ ] T016 [US2] 시험 2: 보드 재부팅 → 자동 재개되는지 기록
+## Phase 5: User Story 4 - 설정으로 형식 변경 대응 (P2)
 
-**Checkpoint**: 손대지 않아도 계속 돈다
+- [ ] T014 [US4] 형식 변경 상황 하나를 가정한다
+- [ ] T015 [US4] 설정만 고쳐 대응하고, 무엇을 바꿨는지 `report.md`에 기록한다
 
-## Phase 5: User Story 3 - 수집 현황 (P2)
+## Phase 6: 마무리 · 심화(B, 선택)
 
-- [ ] T017 [US3] `collector/status.py`: 공간·항목별 건수, 마지막 수신 시각, 24시간 커버율, 결측 구간 표를 출력한다
-- [ ] T018 [US3] 24시간 수집 후 현황 표를 `specs/001-data-collection/report.md`에 붙이고, 빠진 구간의 원인을 적는다
-
-## Phase 6: User Story 4 - 설정으로 형식 변경 대응 (P2)
-
-- [ ] T019 [US4] 형식 변경 상황 하나를 가정한다(예: `co2` → `CO2_ppm`, 또는 새 센서 추가)
-- [ ] T020 [US4] 설정 파일만 고쳐 대응하고, 무엇을 바꿨는지 `report.md`에 기록한다
-
-## Phase 7: 마무리 · 심화(B, 선택)
-
-- [ ] T021 `ROADMAP.md`의 과제 1 상태를 "완료"로 바꾼다
-- [ ] T022 [P] (B) 1년 뒤 저장소 크기를 추정하고 다운샘플링·보관 정책을 설계한다
-- [ ] T023 [P] (B) 같은 메시지가 두 번 오는 경우를 찾아내고 중복 없이 저장되게 한다
-
-## 순서 요약
-
-Setup(T001~T005) → 기초(T006~T007) → US1 → US2 → US3·US4(병행 가능) → 마무리
+- [ ] T016 `ROADMAP.md`의 과제 1 상태를 갱신한다
+- [ ] T017 [P] (B) 1년 뒤 저장소 크기 추정(plan.md 추정치를 실측으로 확인), 보관 정책 설계
+- [ ] T018 [P] (B) 같은 값이 두 번 들어온 경우 찾아내고 처리
