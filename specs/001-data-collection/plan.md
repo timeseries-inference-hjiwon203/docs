@@ -12,17 +12,17 @@ Jetson(aip-1)의 InfluxDB 2.x 내 버킷으로 옮긴다.
 
 ## Technical Context
 
-**원본**: 운영진 InfluxDB OSS v2.7.12, `http://10.116.64.13:8086`, 버킷 `iot-bucket`. 읽기만 함
+**원본**: 운영진 InfluxDB OSS v2.7.12, 버킷 `iot-bucket`. 읽기만 함. 주소는 `https://influx.java21.net`(와이파이), 내부망 `http://10.116.64.13:8086`. 주소는 `config.json` 설정값
 
 **필터**: `location` ∈ {`실습실`, `회의실`}, `_measurement` ∈ {`co2`, `temperature`, `humidity`}, 모든 장치. 태그 `location`, `device_id`, `point` 유지
 
-**옮기는 방법**: 미정 (InfluxDB task / Python 스크립트)
+**옮기는 방법**: Python 스크립트 `sync.py`(표준 라이브러리만 사용) + systemd timer로 1분마다 실행. 마지막으로 옮긴 시각을 `state.json`에 두고 매번 30분 겹쳐 다시 읽는다. 처음 실행 때 2025-08-08부터 하루씩 과거 데이터를 채운다
 
 **Storage**: aip-1에 설치한 InfluxDB 2.x. 서버 1개, org 1개, 사람마다 버킷 1개(`jiwon`, `seohyun`), 자기 버킷만 읽고 쓰는 토큰 1개
 
-**Language/Version**: 과제 2부터 Python. 과제 1 옮기기 프로그램 언어는 옮기는 방법에 따라 미정
+**Language/Version**: Python 3 (aip-1 기본 파이썬, 추가 설치 없음)
 
-**Testing**: 미정
+**Testing**: 수동 시험 3가지(원본 연결 끊김, 재부팅, 설정만으로 형식 변경)와 건수 비교(`verify.py`). 결과는 `report.md`
 
 **Target Platform**: Jetson Orin Nano (aip-1)
 
@@ -37,7 +37,7 @@ Jetson(aip-1)의 InfluxDB 2.x 내 버킷으로 옮긴다.
 - 하루 약 2만 건, 1년 약 720만 건
 - 1건당 넉넉히 50바이트로 잡으면 1년 약 0.4GB/인 (실측 아님)
 - aip-1 디스크 여유 88GB (2026-10-21 `df -h`, microSD)
-- 보관 기간·다운샘플링 정책 → 미정
+- 실측(2026-10-21): 417만 건에 27MB, 1건당 약 6.8바이트 → 1년 약 48MB. 보관 정책 설계는 `report.md` 7절(삭제 설정은 적용하지 않음)
 
 ## Constitution Check
 
@@ -61,16 +61,25 @@ specs/001-data-collection/
 
 ### Source Code
 
-미정 (옮기는 방법이 정해진 뒤)
+aip-1 `~jiwon/collector/` (코드 저장소 반영 방법은 미정)
+
+```text
+collector/
+├── sync.py                  # 운영진 DB → 내 버킷 옮기기
+├── status.py                # 장치별 건수·마지막 시각·커버율·빈 구간
+├── verify.py                # 운영진 DB와 내 버킷 건수 비교, 전체 건수
+├── config.json              # 주소, 공간·항목 매핑, 태그, 과거 시작일
+├── jiwon-collector.service  # systemd: sync.py 한 번 실행 (User=jiwon)
+├── jiwon-collector.timer    # systemd: 부팅 1분 뒤부터 1분마다
+└── .env                     # 토큰 (권한 600, git에 올리지 않음)
+```
 
 ## 미정 사항
 
-- 옮기는 방법: InfluxDB task / Python 스크립트
-- 실행 주기, 처음 한 번 가져올 과거 기간
-- 커버율 계산 방식 세부(장치별 기대 간격을 어떻게 정할지)
-- 중복 값 처리 (심화 B)
-- 사람마다 옮기기 프로그램을 따로 띄우는 방법(서비스 구성)
-- 코드를 GitHub에서 Jetson으로 배포하는 방법
+- 원본의 ms 차이 재전송 값 처리 (심화 B)
+- 코드를 GitHub에서 Jetson으로 배포하는 방법 (지금은 맥에서 scp로 복사)
+
+정해진 것(2026-10-21): 옮기는 방법은 Python 스크립트 + systemd timer, 1분 주기, 과거는 2025-08-08부터, 커버율 칸은 장치별 보고 간격(중앙값) × 2, 사람마다 서비스 이름을 따로(`jiwon-collector`).
 
 ## Complexity Tracking
 

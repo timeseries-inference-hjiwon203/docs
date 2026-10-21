@@ -22,7 +22,7 @@ flowchart LR
 
 | 단계 | 과제 | 한 줄 목표 | 핵심 산출물 | 먼저 끝나야 할 것 | spec 폴더 | 상태 |
 |---|---|---|---|---|---|---|
-| 1 | 데이터 수집 체계 | 운영진 InfluxDB에서 필요한 데이터를 골라 끊김 없이 내 버킷에 저장 | 상시 수집기, 수집 현황 보고 | — | [`specs/001-data-collection`](specs/001-data-collection/) | 계획 중 |
+| 1 | 데이터 수집 체계 | 운영진 InfluxDB에서 필요한 데이터를 골라 끊김 없이 내 버킷에 저장 | 상시 수집기, 수집 현황 보고 | — | [`specs/001-data-collection`](specs/001-data-collection/) | 완료 (2026-10-21, [보고서](specs/001-data-collection/report.md)) |
 | 2 | 데이터 이해와 기준선 | 데이터를 믿을 수 있게 정제하고 넘어야 할 선을 잰다 | 데이터 진단서, 기준선 성능표 | 1 (또는 합성 데이터) | `specs/002-baseline` | 대기 |
 | 3 | 60분 예측 | 5분 간격 60분 CO₂·온도 예측 | 모델 비교표, 공간별 분석, 일정 정보 효과 | 2 | `specs/003-forecast` | 대기 |
 | 4 | 이상 탐지 | 고장 5종을 빨리, 헛경보 없이 | 탐지 성적표, 임계값 분석, 운영 제안 | 2 | `specs/004-anomaly` | 대기 |
@@ -36,10 +36,11 @@ flowchart LR
 ## 정한 것
 
 - 개인 과제로 진행한다. Jetson aip-1을 계정을 나눠 같이 쓴다.
-- 원본: 운영진 InfluxDB `10.116.64.13:8086`, 버킷 `iot-bucket` (MQTT 메시지가 이미 쌓이고 있음. MQTT를 직접 받지 않고 여기서 가져와도 된다고 운영진에게 확인함)
+- 원본: 운영진 InfluxDB `https://influx.java21.net`(와이파이) / `10.116.64.13:8086`(내부망), 버킷 `iot-bucket` (MQTT 메시지가 이미 쌓이고 있음. MQTT를 직접 받지 않고 여기서 가져와도 된다고 운영진에게 확인함)
 - 가져올 데이터: 실습실(안내문의 강의실)·회의실 × co2·temperature·humidity, 모든 장치
 - 저장소: aip-1에 InfluxDB 2.x 설치. 서버 1개, org 1개, 사람마다 버킷 1개(`jiwon`, `seohyun`)와 자기 버킷 전용 토큰
-- 언어: 과제 2부터 Python (배우면서 진행)
+- 언어: Python (배우면서 진행). 과제 1 옮기기 프로그램도 Python
+- 과제 1 옮기기: Python 스크립트 + systemd timer(1분마다), 과거 데이터는 2025-08-08부터
 - Jetson 설치 프로그램은 노션 설치 기록표에 이유와 함께 남긴다
 
 ## 단계마다 반복하는 순서 (spec-kit)
@@ -53,7 +54,7 @@ flowchart LR
 
 ## 아직 정하지 않은 것 / 확인할 것
 
-- [ ] 운영진 DB에서 내 버킷으로 옮기는 방법: InfluxDB task / Python 스크립트
+- [x] 운영진 DB에서 내 버킷으로 옮기는 방법 → Python 스크립트 + systemd timer
 - [ ] 제공 키트 README / CODE_GUIDE 읽기
 - [ ] 트랙 결정: 기본(A) / 심화(B)
 - [ ] 코드를 GitHub에서 Jetson으로 배포하는 방법
