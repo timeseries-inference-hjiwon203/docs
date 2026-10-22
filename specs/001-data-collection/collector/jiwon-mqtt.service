@@ -1,0 +1,16 @@
+[Unit]
+Description=jiwon MQTT collector (sensor -> my InfluxDB bucket)
+After=network-online.target influxdb.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=jiwon
+WorkingDirectory=/home/jiwon/collector
+EnvironmentFile=/home/jiwon/collector/.env
+ExecStart=/usr/bin/python3 /home/jiwon/collector/mqtt_collector.py
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

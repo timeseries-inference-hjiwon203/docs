@@ -1,0 +1,51 @@
+{
+  "source": {
+    "url": "https://influx.java21.net",
+    "org_id": "33e75366a5081f13",
+    "bucket": "iot-bucket",
+    "field": "value"
+  },
+  "target": {
+    "url": "http://localhost:8086",
+    "org": "aip-1",
+    "bucket": "jiwon"
+  },
+  "locations": [
+    "실습실",
+    "회의실"
+  ],
+  "measurements": {
+    "co2": "co2",
+    "temperature": "temperature",
+    "humidity": "humidity"
+  },
+  "tags": [
+    "location",
+    "device_id",
+    "point"
+  ],
+  "backfill_start": "2025-08-08T00:00:00Z",
+  "overlap_minutes": 30,
+  "chunk_hours": 24,
+  "write_batch": 5000,
+  "state_file": "state.json",
+  "mqtt": {
+    "host": "data.withio.net",
+    "port": 1883,
+    "username": "academy",
+    "topic": "application/+/device/+/event/up",
+    "client_id": "aip-1-jiwon-collector",
+    "measurements": {
+      "co2": "co2",
+      "temperature": "temperature",
+      "humidity": "humidity"
+    },
+    "future_seconds": 60,
+    "no_message_minutes": 10,
+    "state_file": "mqtt_state.json"
+  },
+  "status": {
+    "coverage_factor": 2,
+    "gap_minutes": 30
+  }
+}

@@ -1,0 +1,10 @@
+[Unit]
+Description=1분마다 jiwon-collector 실행
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=1min
+AccuracySec=5s
+
+[Install]
+WantedBy=timers.target
