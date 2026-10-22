@@ -1,5 +1,9 @@
 # Implementation Plan: 데이터 이해와 기준선 (과제 2)
 
+<!-- 수정 기록
+- 2026-10-22 미정이던 나눠 읽기·토큰·코드 위치를 정해진 대로 채움, 구조에 새 파일 반영
+-->
+
 **Branch**: `002-baseline` | **Date**: 2026-10-21 | **Spec**: [spec.md](spec.md)
 
 **Input**: Feature specification from `/specs/002-baseline/spec.md`
@@ -12,7 +16,7 @@ aip-1 InfluxDB의 `jiwon` 버킷을 지원의 Mac에서 읽어, 정제 규칙을
 
 ## Technical Context
 
-**데이터 원천**: aip-1 InfluxDB 2.x, org `aip-1`, 버킷 `jiwon`. Mac에서 Tailscale 주소(`100.98.23.5:8086`)로 읽기만 한다. 1년 치는 나눠 읽는다(나누는 단위 **미정**)
+**데이터 원천**: aip-1 InfluxDB 2.x, org `aip-1`, 버킷 `jiwon`. Mac에서 Tailscale 주소(`100.98.23.5:8086`)로 읽기만 한다. 1년 치는 한 달씩 나눠 읽고 Mac의 `data/raw/YYYY-MM.csv.gz`에 저장해 둔다(이미 저장한 달은 다시 읽지 않음)
 
 **분석 장소**: 지원의 Mac (Python 3.9.6, 가상환경 `~/venvs/timeseries`)
 
@@ -20,7 +24,7 @@ aip-1 InfluxDB의 `jiwon` 버킷을 지원의 Mac에서 읽어, 정제 규칙을
 
 **Language/Version**: Python 3.9.6
 
-**토큰**: Mac에서 환경변수로만 넘긴다. 파일에 쓰는 경우 git에 올리지 않는다(방법 **미정**)
+**토큰**: Mac에서 환경변수로만 넘긴다. 터미널을 열 때마다 `export INFLUX_TOKEN=...`으로 넣고 파일에는 저장하지 않는다
 
 **Target Platform**: 분석은 Mac. 정제 규칙은 과제 8에서 Jetson으로 옮겨 쓴다
 
@@ -28,7 +32,7 @@ aip-1 InfluxDB의 `jiwon` 버킷을 지원의 Mac에서 읽어, 정제 규칙을
 
 **Scale/Scope**: 공간 2개, 항목 3개, 2025-08-08 ~ 현재 약 417만 건
 
-**코드 위치**: **미정** (Mac의 `timeseries-inference` 저장소에 둘지 등)
+**코드 위치**: Mac `~/Downloads/project/timeseries-inference/002-baseline/`(git 저장소 아님)에서 실행한다. 사본을 이 저장소 `specs/002-baseline/analysis/`에 둔다
 
 ## Constitution Check
 
@@ -60,18 +64,20 @@ specs/002-baseline/
 ├── spec.md       # 무엇을 하나
 ├── plan.md       # 이 파일
 ├── tasks.md      # 할 일 목록
-└── report.md     # (나중에) 데이터 진단서 + 기준선 성능표
+├── report.md     # 데이터 진단서 + 기준선 성능표
+├── notes.md      # 규칙과 이유, 작업 기록
+├── troubleshooting.md
+├── figures/      # 패턴 그래프
+└── analysis/     # 분석 코드
 ```
 
 ### Source Code
 
-**미정**
+`analysis/` 폴더. 파일마다 하는 일은 [analysis/README.md](analysis/README.md)
 
 ## 미정 사항
 
-- 분석 간격, 실습실 센서 합치는 방법, 분할 경계, 불가능한 값 범위, 결측 처리, 재전송 처리 (spec "정할 것")
-- 나눠 읽는 단위, 읽은 데이터를 Mac에 저장해 둘지
-- 코드 위치, 토큰을 Mac에 두는 방법
+없음 (2026-10-22). 분석 간격, 센서 합치기, 분할 경계, 값 범위, 결측·재전송 처리는 notes.md "확정한 규칙과 이유"에 이유와 함께 있다.
 
 정해진 것(2026-10-21): 분석은 Mac에서(Jetson 설치 없음), Mac이 aip-1 DB를 직접 읽음, Python 3.9.6 가상환경 + pandas·matplotlib, 회의실 예약 자료 없음, 수업 시간표 평일 09:00~18:00·점심 11:30~13:00.
 
