@@ -1,0 +1,12 @@
+[Unit]
+Description=강사 InfluxDB → aip-1 jiwon 버킷 복사 (과제 1)
+Wants=network-online.target
+After=network-online.target influxdb.service
+
+[Service]
+Type=oneshot
+User=jiwon
+WorkingDirectory=/home/jiwon/collector
+EnvironmentFile=/home/jiwon/collector/.env
+ExecStart=/usr/bin/python3 /home/jiwon/collector/sync.py
+TimeoutStartSec=2h
