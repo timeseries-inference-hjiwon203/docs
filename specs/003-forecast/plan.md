@@ -2,6 +2,7 @@
 
 <!-- 수정 기록
 - 2026-10-25 처음 작성 (spec Q1~Q9 결정 반영: B, GRU 먼저, 2시간, 한 번에 12칸, 변화량, 한 모델, Jetson eg2)
+- 2026-10-25 확인 결과 반영(GPU True, pandas 2.2.3 설치). 실제 파일 구성으로 구조 고침(dataset.py → features.py에 합침, schedule.py·check_data.py 추가). 정규화는 두 공간 값을 합친 하나
 -->
 
 **Branch**: `003-forecast` | **Date**: 2026-10-25 | **Spec**: [spec.md](spec.md)
@@ -17,7 +18,7 @@ GRU 1종으로 확인 기준(60분 CO₂ 30% 개선, 온도 개선)을 먼저 �
 
 **학습 장소**: Jetson aip-1, `jiwon` 계정. 가상환경 `~/eg2`(임베딩 실습 때 만든 것, PyTorch·scipy·scikit-learn 있음). `~/eg2/bin/python`으로 실행한다. eg2의 PyTorch는 다시 깔거나 버전을 바꾸지 않는다(`torch-pin.txt`)
 
-**확인 필요 (T001)**: eg2에서 `torch.cuda.is_available()`가 `True`인지, pandas가 있는지. pandas가 없으면 무엇을 왜 깔지 설명하고 지원 확인 후 eg2에 pandas만 추가
+**확인 결과 (T001, 2026-10-25)**: PyTorch 2.14.1+cu132, `torch.cuda.is_available()` = True, numpy 1.26.4. pandas가 없어서 지원 결정으로 eg2에 pandas 2.2.3만 추가(numpy 고정, 미리보기로 확인)
 
 **데이터**: 과제 2가 Mac에서 만든 파일을 Jetson으로 옮겨 읽기만 한다. DB에 다시 접속하지 않는다
 
@@ -43,7 +44,7 @@ GRU 1종으로 확인 기준(60분 CO₂ 30% 개선, 온도 개선)을 먼저 �
 
 | 묶음 | 항목 | 만드는 법 |
 |---|---|---|
-| 센서 | co2, temperature, humidity | 학습 기간 평균·표준편차로 정규화 (`norm_stats.json`) |
+| 센서 | co2, temperature, humidity | 학습 기간 평균·표준편차로 정규화 (`norm_stats.json`의 두 공간 값을 건수로 가중해 합친 하나. E6은 학습 공간 값만) |
 | 채움 표시 | filled_co2 등 | 진짜 값이 아니라 채운 칸이면 1 |
 | 시간 | 시각 sin·cos, 요일 sin·cos | 23시와 0시, 일요일과 월요일이 가깝게 |
 | 공간 | is_lab (실습실 1, 회의실 0) | 한 모델로 두 공간을 학습 |
@@ -110,14 +111,15 @@ GRU 1종으로 확인 기준(60분 CO₂ 30% 개선, 온도 개선)을 먼저 �
 ```text
 Jetson ~jiwon/timeseries-inference/003-forecast/
 ├── data/            # 과제 2에서 옮긴 파일 (git에 안 올림)
-├── features.py      # 5분 칸 표 → 입력 칸(정규화, 시간, 일정, 인원)
-├── dataset.py       # 기준 시각마다 (과거 칸, 앞 60분 일정, 정답, 정답 진짜 여부)
+├── split.py         # 과제 2 그대로 (기간 경계, 칸 표 읽기)
+├── schedule.py      # 공휴일·휴강, 기수별 인원, 칸마다 일정 숫자
+├── features.py      # 5분 칸 표 → 입력 행렬, 학습 기준 시각 고르기, 묶음 만들기
 ├── models.py        # GRU, LSTM, TCN (같은 틀)
 ├── train.py         # 설정 하나로 학습, 검증 점수로 멈춤, 모델 파일 저장
 ├── evaluate.py      # eval_points에서 채점, 기준선과 같은 표. --final일 때만 시험 기간
-├── run_all.py       # 실험 목록(E1~E6)을 차례로 돌림
-├── analyze.py       # 시간대별 오차, 큰 오차 사례
-└── runs/<실험ID>/   # model.pt, config.json, val_mae.csv, test_mae.csv(최종만)
+├── check_data.py    # 학습 전 확인 (출력 0 모델 = 현재값 유지인지)
+├── analyze.py       # (나중) 시간대별 오차, 큰 오차 사례
+└── runs/<실험ID>/   # model.pt, config.json, history.csv, val_mae.csv, test_mae.csv(최종만)
 ```
 
 docs 저장소에는 `specs/003-forecast/`에 문서·코드·그림·결과표를 올린다(데이터와 모델 파일 제외, 지원이 요청할 때).
